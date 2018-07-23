@@ -1,4 +1,5 @@
 ﻿using SolveBank.Exceptions;
+using SolveBank.Ports.Authorisation;
 using SolveBank.Ports.Persistence;
 
 namespace SolveBank.UseCases
@@ -6,10 +7,12 @@ namespace SolveBank.UseCases
     public class TransferUseCase
     {
         private readonly IBankAccountStore _bankAccountStore;
+        private readonly IAccountAuthorisation _accountAuthorisation;
 
-        public TransferUseCase(IBankAccountStore bankAccountStore)
+        public TransferUseCase(IBankAccountStore bankAccountStore, IAccountAuthorisation accountAuthorisation)
         {
             _bankAccountStore = bankAccountStore;
+            _accountAuthorisation = accountAuthorisation;
         }
 
         public void Transfer(decimal amount, string currency, string sourceAccountNumber, string destinationAccountNumber)
@@ -31,6 +34,11 @@ namespace SolveBank.UseCases
             if (destinationAccount == null)
             {
                 throw new AccountNotFoundException(destinationAccountNumber);
+            }
+
+            if (!_accountAuthorisation.RequestForWithdrawal(sourceAccount))
+            {
+                throw new AuthorisationFailedException();
             }
 
             if ((sourceAccount.Balance - amount) < 0)

@@ -1,4 +1,5 @@
 ﻿using SolveBank.Exceptions;
+using SolveBank.Ports.Authorisation;
 using SolveBank.Ports.Persistence;
 
 namespace SolveBank.UseCases
@@ -6,10 +7,12 @@ namespace SolveBank.UseCases
     public class WithdrawUseCase
     {
         private readonly IBankAccountStore _bankAccountStore;
+        private readonly IAccountAuthorisation _accountAuthorisation;
 
-        public WithdrawUseCase(IBankAccountStore bankAccountStore)
+        public WithdrawUseCase(IBankAccountStore bankAccountStore, IAccountAuthorisation accountAuthorisation)
         {
             _bankAccountStore = bankAccountStore;
+            _accountAuthorisation = accountAuthorisation;
         }
 
         public void WithdrawFrom(string accountNumber, decimal amount, string currency)
@@ -24,6 +27,11 @@ namespace SolveBank.UseCases
             if (bankAccount == null)
             {
                 throw new AccountNotFoundException(accountNumber);
+            }
+
+            if (!_accountAuthorisation.RequestForWithdrawal(bankAccount))
+            {
+                throw new AuthorisationFailedException();
             }
 
             if ((bankAccount.Balance - amount) < 0)

@@ -3,6 +3,7 @@ using FluentAssertions;
 using Moq;
 using SolveBank.Exceptions;
 using SolveBank.Models;
+using SolveBank.Ports.Authorisation;
 using SolveBank.Ports.Persistence;
 using SolveBank.UseCases;
 using Xunit;
@@ -12,12 +13,16 @@ namespace SolveBank.Tests.Unit.UseCases
     public class WhenWithdrawingMoney
     {
         private readonly Mock<IBankAccountStore> _bankAccountStoreMock;
+        private readonly Mock<IAccountAuthorisation> _accountAuthorisationMock;
         private readonly WithdrawUseCase _useCase;
 
         public WhenWithdrawingMoney()
         {
             _bankAccountStoreMock = new Mock<IBankAccountStore>();
-            _useCase = new WithdrawUseCase(_bankAccountStoreMock.Object);
+            _accountAuthorisationMock = new Mock<IAccountAuthorisation>();
+            _useCase = new WithdrawUseCase(_bankAccountStoreMock.Object, _accountAuthorisationMock.Object);
+
+            GivenAuthorisationRequesSucceeds();
         }
 
         [Fact]
@@ -81,6 +86,19 @@ namespace SolveBank.Tests.Unit.UseCases
                 .Be(10);
         }
 
+        [Fact]
+        public void GivenAuthorisatioRequestnFails_AuthorisationFailedExceptionIsThrown()
+        {
+            var bankAccount = GivenBankAccountWithBalance(10);
+            GivenAuthorisationRequestFails();
+
+            Action action = () =>  _useCase.WithdrawFrom(bankAccount.AccountNumber, 10, "EUR");
+
+            action
+                .Should()
+                .Throw<AuthorisationFailedException>();
+        }
+
         private BankAccount GivenBankAccountWithBalance(decimal balance)
         {
             var bankAccount = new BankAccount
@@ -93,10 +111,23 @@ namespace SolveBank.Tests.Unit.UseCases
                 .Setup(b => b.GetByAccountNumber(It.Is<string>(s => s == bankAccount.AccountNumber)))
                 .Returns(bankAccount);
 
-            new DepositUseCase(_bankAccountStoreMock.Object)
-                .DepositTo(bankAccount.AccountNumber, balance, bankAccount.Currency);
+            bankAccount.Deposit(balance, bankAccount.Currency);
 
             return bankAccount;
+        }
+
+        private void GivenAuthorisationRequesSucceeds()
+        {
+            _accountAuthorisationMock
+                .Setup(a => a.RequestForWithdrawal(It.IsAny<BankAccount>()))
+                .Returns(true);
+        }
+
+        private void GivenAuthorisationRequestFails()
+        {
+            _accountAuthorisationMock
+                .Setup(a => a.RequestForWithdrawal(It.IsAny<BankAccount>()))
+                .Returns(false);
         }
     }
 }

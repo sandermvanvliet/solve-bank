@@ -3,6 +3,7 @@ using FluentAssertions;
 using Moq;
 using SolveBank.Exceptions;
 using SolveBank.Models;
+using SolveBank.Ports.Authorisation;
 using SolveBank.Ports.Persistence;
 using SolveBank.UseCases;
 using Xunit;
@@ -12,12 +13,16 @@ namespace SolveBank.Tests.Unit.UseCases
     public class WhenDepositingMoney
     {
         private readonly Mock<IBankAccountStore> _bankAccountStoreMock;
+        private readonly Mock<IAccountAuthorisation> _accountAuthorisationMock;
         private readonly DepositUseCase _useCase;
 
         public WhenDepositingMoney()
         {
             _bankAccountStoreMock = new Mock<IBankAccountStore>();
-            _useCase = new DepositUseCase(_bankAccountStoreMock.Object);
+            _accountAuthorisationMock = new Mock<IAccountAuthorisation>();
+            _useCase = new DepositUseCase(_bankAccountStoreMock.Object, _accountAuthorisationMock.Object);
+
+            GivenAuthorisationRequesSucceeds();
         }
 
         [Fact]
@@ -55,6 +60,19 @@ namespace SolveBank.Tests.Unit.UseCases
                 .Throw<InvalidDepositException>();
         }
 
+        [Fact]
+        public void GivenAuthorisationRequestFails_AuthorisationFailedExceptionIsThrown()
+        {
+            GivenAuthorisationRequestFails();
+            var bankAccount = GivenANewEmptyBankAccount();
+
+            Action action = () => _useCase.DepositTo(bankAccount.AccountNumber, 10, "EUR");
+
+            action
+                .Should()
+                .Throw<AuthorisationFailedException>();
+        }
+
         private BankAccount GivenANewEmptyBankAccount()
         {
             var bankAccount = new BankAccount
@@ -68,6 +86,20 @@ namespace SolveBank.Tests.Unit.UseCases
                 .Returns(bankAccount);
 
             return bankAccount;
+        }
+
+        private void GivenAuthorisationRequesSucceeds()
+        {
+            _accountAuthorisationMock
+                .Setup(a => a.RequestForDeposit(It.IsAny<BankAccount>()))
+                .Returns(true);
+        }
+
+        private void GivenAuthorisationRequestFails()
+        {
+            _accountAuthorisationMock
+                .Setup(a => a.RequestForDeposit(It.IsAny<BankAccount>()))
+                .Returns(false);
         }
     }
 }

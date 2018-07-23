@@ -3,6 +3,7 @@ using FluentAssertions;
 using Moq;
 using SolveBank.Exceptions;
 using SolveBank.Models;
+using SolveBank.Ports.Authorisation;
 using SolveBank.Ports.Persistence;
 using SolveBank.UseCases;
 using Xunit;
@@ -13,6 +14,7 @@ namespace SolveBank.Tests.Unit.UseCases
     {
         
         private readonly Mock<IBankAccountStore> _bankAccountStoreMock;
+        private readonly Mock<IAccountAuthorisation> _accountAuthorisationMock;
         private readonly TransferUseCase _useCase;
         private const string SourceAccountNumber = "1234";
         private const string DestinationAccountNumber = "5678";
@@ -20,7 +22,10 @@ namespace SolveBank.Tests.Unit.UseCases
         public WhenTransferringMoney()
         {
             _bankAccountStoreMock = new Mock<IBankAccountStore>();
-            _useCase = new TransferUseCase(_bankAccountStoreMock.Object);
+            _accountAuthorisationMock = new Mock<IAccountAuthorisation>();
+            _useCase = new TransferUseCase(_bankAccountStoreMock.Object, _accountAuthorisationMock.Object);
+
+            GivenAuthorisationRequesSucceeds();
         }
 
         [Fact]
@@ -105,7 +110,6 @@ namespace SolveBank.Tests.Unit.UseCases
         [Fact]
         public void GivenTenEurosTransferred_DestinationAccountBalanceIsTenEurosMore()
         {
-            
             GivenBankAccountWithBalance(SourceAccountNumber, 10);
             var destinationAccount = GivenBankAccountWithBalance(DestinationAccountNumber, 0);
 
@@ -119,6 +123,25 @@ namespace SolveBank.Tests.Unit.UseCases
                 .Balance
                 .Should()
                 .Be(10);
+        }
+
+        [Fact]
+        public void GivenSourceAccountAuthorisationFails_AuthorisationFailedExceptionIsThrown()
+        {
+            GivenBankAccountWithBalance(SourceAccountNumber, 10);
+            GivenBankAccountWithBalance(DestinationAccountNumber, 0);
+
+            GivenAuthorisationRequestFails();
+
+            Action action = () => _useCase.Transfer(
+                10,
+                "EUR",
+                SourceAccountNumber,
+                DestinationAccountNumber);
+
+            action
+                .Should()
+                .Throw<AuthorisationFailedException>();
         }
 
         private BankAccount GivenBankAccountWithBalance(string accountNumber, decimal balance)
@@ -136,11 +159,24 @@ namespace SolveBank.Tests.Unit.UseCases
 
             if(balance > 0)
             {
-                new DepositUseCase(_bankAccountStoreMock.Object)
-                    .DepositTo(bankAccount.AccountNumber, balance, bankAccount.Currency);
+                bankAccount.Deposit(balance, bankAccount.Currency);
             }
 
             return bankAccount;
+        }
+
+        private void GivenAuthorisationRequesSucceeds()
+        {
+            _accountAuthorisationMock
+                .Setup(a => a.RequestForWithdrawal(It.IsAny<BankAccount>()))
+                .Returns(true);
+        }
+
+        private void GivenAuthorisationRequestFails()
+        {
+            _accountAuthorisationMock
+                .Setup(a => a.RequestForWithdrawal(It.IsAny<BankAccount>()))
+                .Returns(false);
         }
     }
 }
