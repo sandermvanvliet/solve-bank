@@ -1,6 +1,11 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <ItemGroup>
+    <PackageReference Include="SimpleInjector" Version="4.3.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\SolveBank.Adapters.InMemory\SolveBank.Adapters.InMemory.csproj" />
     <ProjectReference Include="..\SolveBank\SolveBank.csproj" />
   </ItemGroup>
 
