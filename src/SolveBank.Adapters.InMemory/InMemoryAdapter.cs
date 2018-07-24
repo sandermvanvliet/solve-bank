@@ -12,8 +12,8 @@ namespace SolveBank.Adapters.InMemory
         {
             var adapterContainer = new Container();
 
-            adapterContainer.Register<IAccountAuthorisation, AlwaysSuccessfulAccountAuthorisation>();
-            adapterContainer.Register<IBankAccountStore, InMemoryBankAccountStore>();
+            adapterContainer.RegisterSingleton<IAccountAuthorisation, AlwaysSuccessfulAccountAuthorisation>();
+            adapterContainer.RegisterSingleton<IBankAccountStore, InMemoryBankAccountStore>();
 
             // Proxy registrations for the host container
             container.Register(() => adapterContainer.GetInstance<IAccountAuthorisation>());

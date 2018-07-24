@@ -1,7 +1,6 @@
 ﻿using System;
 using Oakton;
 using SimpleInjector;
-using SolveBank.Adapters.InMemory;
 
 namespace SolveBank.Console
 {
@@ -9,50 +8,41 @@ namespace SolveBank.Console
     {
         private readonly CommandExecutor _executor;
 
-        static void Main(string[] args)
+        private static void Main(string[] args)
         {
             var program = new Program();
 
-            program.Run(args);
+            var exitCode = program.Run(args);
+
+            Environment.Exit(exitCode);
         }
 
         public Program()
+            : this(null)
         {
-            var container = BootstrapContainerAndAdapters();
+        }
+
+        internal Program(Action<Container> registerOverrides = null)
+        {
+            var container = Bootstrapper.BootstrapContainerAndAdapters(registerOverrides);
 
             _executor = CommandExecutor
                 .For(_ => _.RegisterCommands(typeof(Program).Assembly),
                     new SimpleInjectorCommandCreator(container));
         }
 
-        private void Run(string[] args)
+        public int Run(string[] args)
         {
             try
             {
-                _executor.Execute(args);
+                return _executor.Execute(args);
             }
             catch (Exception ex)
             {
                 System.Console.Error.WriteLine($"Oops! Something went very wrong, I'm sorry. Please show this message to your friendly neighbourhood developer: {ex.Message}");
-                Environment.Exit(1);
+                
+                return 1;
             }
-        }
-
-        private Container BootstrapContainerAndAdapters()
-        {
-            var container = new Container();
-
-            InMemoryAdapter.Register(container);
-
-            ApplyContainerOverrides();
-
-            container.Verify();
-
-            return container;
-        }
-
-        protected virtual void ApplyContainerOverrides()
-        {
         }
     }
 }

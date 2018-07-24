@@ -27,5 +27,21 @@ namespace SolveBank.Adapters.InMemory.Ports.Persistence
 
             return JsonConvert.DeserializeObject<BankAccount>(serialized);
         }
+
+        public void Store(BankAccount bankAccount)
+        {
+            var serialized = JsonConvert.SerializeObject(bankAccount);
+            
+            var clonedBankAccount = JsonConvert.DeserializeObject<BankAccount>(serialized);
+
+            if (!_bankAccounts.ContainsKey(bankAccount.AccountNumber))
+            {
+                _bankAccounts.Add(bankAccount.AccountNumber, clonedBankAccount);
+            }
+            else
+            {
+                _bankAccounts[bankAccount.AccountNumber] = clonedBankAccount;
+            }
+        }
     }
 }
