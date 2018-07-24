@@ -7,6 +7,8 @@ namespace SolveBank.Models
         public string AccountNumber { get; set; }
         public decimal Balance { get; private set; }
         public string Currency { get; set; }
+        public Customer Customer { get; set; } = new Customer();
+
         private readonly List<Transaction> _transactions = new List<Transaction>();
         private readonly object _syncRoot = new object();
 
