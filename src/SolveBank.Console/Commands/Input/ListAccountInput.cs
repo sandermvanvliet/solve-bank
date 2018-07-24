@@ -1,4 +1,4 @@
-﻿using System.ComponentModel;
+﻿using Oakton;
 
 namespace SolveBank.Console.Commands.Input
 {
