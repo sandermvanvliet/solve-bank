@@ -3,7 +3,7 @@ using Newtonsoft.Json;
 using SolveBank.Models;
 using SolveBank.Ports.Persistence;
 
-namespace SolveBank.Adapters.InMemory.Ports.Persistence
+namespace SolveBank.Adapters.Persistence.Ports.Persistence
 {
     internal class InMemoryBankAccountStore : IBankAccountStore
     {

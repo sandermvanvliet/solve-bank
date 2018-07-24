@@ -1,6 +1,6 @@
 ﻿using FluentAssertions;
 using Moq;
-using SolveBank.Adapters.InMemory.Ports.Persistence;
+using SolveBank.Adapters.Persistence.Ports.Persistence;
 using SolveBank.Models;
 using SolveBank.Ports.Authorisation;
 using SolveBank.Ports.Persistence;

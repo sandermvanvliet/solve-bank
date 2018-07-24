@@ -1,7 +1,7 @@
 ﻿using SolveBank.Models;
 using SolveBank.Ports.Authorisation;
 
-namespace SolveBank.Adapters.InMemory.Ports.Authorisation
+namespace SolveBank.Adapters.Authorisation.Ports.Authorisation
 {
     internal class AlwaysSuccessfulAccountAuthorisation : IAccountAuthorisation
     {

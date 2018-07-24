@@ -6,7 +6,8 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\SolveBank.Adapters.InMemory\SolveBank.Adapters.InMemory.csproj" />
+    <ProjectReference Include="..\SolveBank.Adapters.Authorisation\SolveBank.Adapters.Authorisation.csproj" />
+    <ProjectReference Include="..\SolveBank.Adapters.InMemory\SolveBank.Adapters.Persistence.csproj" />
     <ProjectReference Include="..\SolveBank\SolveBank.csproj" />
   </ItemGroup>
 
