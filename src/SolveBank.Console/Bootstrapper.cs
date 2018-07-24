@@ -11,7 +11,7 @@ namespace SolveBank.Console
         {
             var container = new Container();
             
-            AuthorisationAdapter.Register(container);
+            AuthorisationAdapter.Register(container, new FeatureToggles { UseConsoleAuthorisation = true });
             InMemoryAdapter.Register(container);
 
             if (registerOverrides != null)

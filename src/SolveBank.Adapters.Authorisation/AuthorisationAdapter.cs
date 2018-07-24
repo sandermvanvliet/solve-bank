@@ -6,11 +6,18 @@ namespace SolveBank.Adapters.Authorisation
 {
     public class AuthorisationAdapter
     {
-        public static void Register(Container container)
+        public static void Register(Container container, FeatureToggles featureToggles)
         {
             var adapterContainer = new Container();
 
-            adapterContainer.RegisterSingleton<IAccountAuthorisation, AlwaysSuccessfulAccountAuthorisation>();
+            if (featureToggles.UseAlwaySuccessfulAuthorisation)
+            {
+                adapterContainer.RegisterSingleton<IAccountAuthorisation, AlwaysSuccessfulAccountAuthorisation>();
+            }
+            else if (featureToggles.UseConsoleAuthorisation)
+            {
+                adapterContainer.RegisterSingleton<IAccountAuthorisation, ConsoleAccountAuthorisation>();
+            }
 
             // Proxy registrations for the host container
             container.Register(() => adapterContainer.GetInstance<IAccountAuthorisation>());
