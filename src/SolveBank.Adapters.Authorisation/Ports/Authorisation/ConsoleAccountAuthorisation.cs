@@ -19,7 +19,7 @@ namespace SolveBank.Adapters.Authorisation.Ports.Authorisation
         private static bool AskSecurityQuestion(BankAccount bankAccount)
         {
             Console.WriteLine(
-                $"Please ask the customer the security question: '{bankAccount.SecurityQuestion}', the answer should be: {bankAccount.SecurityAnswer}");
+                $"Please ask the customer the security question: '{bankAccount.Customer.SecurityQuestion}', the answer should be: {bankAccount.Customer.SecurityAnswer}");
             Console.WriteLine("If the answer is correct, type 'correct' and press enter. Otherwise press enter");
 
             var response = Console.ReadLine()

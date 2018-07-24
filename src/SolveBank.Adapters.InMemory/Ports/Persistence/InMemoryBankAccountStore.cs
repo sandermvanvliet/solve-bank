@@ -12,6 +12,30 @@ namespace SolveBank.Adapters.Persistence.Ports.Persistence
         public InMemoryBankAccountStore()
         {
             _bankAccounts = new Dictionary<string, BankAccount>();
+
+            Store(new BankAccount
+            {
+                AccountNumber = "12345",
+                Currency = "EUR",
+                Customer = new Customer
+                {
+                    Name = "Joe Blogs",
+                    SecurityQuestion = "What is your favourite colour",
+                    SecurityAnswer = "Blue"
+                }
+            });
+            
+            Store(new BankAccount
+            {
+                AccountNumber = "67890",
+                Currency = "EUR",
+                Customer = new Customer
+                {
+                    Name = "Bob Blogs",
+                    SecurityQuestion = "What is your favourite colour",
+                    SecurityAnswer = "Red"
+                }
+            });
         }
 
         public BankAccount GetByAccountNumber(string accountNumber)
