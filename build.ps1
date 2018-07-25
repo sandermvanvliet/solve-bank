@@ -258,6 +258,11 @@ if (${env:BUILD_NUMBER} -ne $null)
 {
     $Version = ${env:BUILD_NUMBER};
     Write-Output "Found version number in Environment variables! Using version number '$Version'." 
+} else if (${env:APPVEYOR_BUILD_NUMBER} -ne $null)
+{
+    $Version = ${env:APPVEYOR_BUILD_NUMBER};
+    Write-Output "Found version number in Environment variables! Using version number '$Version'." 
+}
 } else {
     Write-Output "Version number not found in Environment variables. Defaulting to '$Version'."
 }
