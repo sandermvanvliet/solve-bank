@@ -1,5 +1,8 @@
 # Checking account assignment
 
+## Build status and test report
+[![Build status](https://ci.appveyor.com/api/projects/status/4f5q4rbjg4e5cuh2/branch/master?svg=true)](https://ci.appveyor.com/project/sandermvanvliet/solve-bank/branch/master)
+
 ## Assignment
 You (a senior software developer) and a friend (a business man) are going to disrupt the financial world with a new type of Bank. Your friends' research showed that people are mostly annoyed by the fees that they have to pay for their banking services. Your bank is going to offer a free checking account for its customers. What the businessplan exactly is, is beyond your knowledge but you and your friend are going to be rich by the end of the year.
 
